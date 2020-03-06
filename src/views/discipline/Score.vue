@@ -1,0 +1,82 @@
+<template>
+    
+      <v-container class="fill-height" fluid>
+        <v-row align="center" justify="center">
+          <v-col cols="12" sm="8" md="4">
+            <v-card class="elevation-12">
+              <v-toolbar color="primary" dark flat>
+                <v-toolbar-title>纪检部</v-toolbar-title>
+                <v-spacer />
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-btn  icon large target="_blank" v-on="on">
+                      <v-icon>mdi-code-tags</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Source</span>
+                </v-tooltip>
+                <v-tooltip right>
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      icon
+                      large
+                      href="https://codepen.io/johnjleider/pen/pMvGQO"
+                      target="_blank"
+                      v-on="on"
+                    >
+                      <v-icon>mdi-codepen</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Codepen</span>
+                </v-tooltip>
+              </v-toolbar>
+              <v-card-text>
+                <v-form>
+                  <v-text-field label="用户名" name="login" prepend-icon="person" type="text" />
+
+                  <v-text-field
+                    id="password"
+                    label="密码"
+                    name="password"
+                    prepend-icon="lock"
+                    type="password"
+                  />
+                </v-form>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn color="primary" @click="changeTabDes">登录</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    
+</template>
+
+
+<script>
+export default {
+  name: "Score",
+
+  components: {},
+  data: () => ({
+ 
+    tabs:[
+      { icon: "dashboard", text: "缺勤写入", route: "/discipline/absent" },
+      { icon: "folder", text: "纪委考评", route: "/discipline/score" },
+      { icon: "person", text: "假条上传", route: "/discipline/upload" }
+    ]
+
+    //
+  }),
+  created(){
+    this.changeTabDis()
+  },
+  methods: {
+    changeTabDis() {
+    this.$store.commit("changeTabs",this.tabs)
+    }
+  }
+};
+</script>
