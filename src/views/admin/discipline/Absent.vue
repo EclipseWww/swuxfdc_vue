@@ -167,9 +167,9 @@ export default {
       protein: 0
     },
     tabs: [
-      { text: "缺勤写入", route: "/discipline/absent" },
-      { text: "纪委考评", route: "/discipline/score" },
-      { text: "缺勤审核", route: "/discipline/audit" }
+      { text: "缺勤写入", route: "/admin/discipline/absent" },
+      { text: "纪委考评", route: "/admin/discipline/score" },
+      { text: "缺勤审核", route: "/admin/discipline/audit" }
     ]
 
     //

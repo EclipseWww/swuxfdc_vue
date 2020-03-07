@@ -63,9 +63,9 @@ export default {
   data: () => ({
  
     tabs:[
-      { icon: "dashboard", text: "缺勤写入", route: "/discipline/absent" },
-      { icon: "folder", text: "纪委考评", route: "/discipline/score" },
-      { icon: "person", text: "假条上传", route: "/discipline/upload" }
+      { text: "缺勤写入", route: "/admin/discipline/absent" },
+      { text: "纪委考评", route: "/admin/discipline/score" },
+      { text: "缺勤审核", route: "/admin/discipline/audit" }
     ]
 
     //

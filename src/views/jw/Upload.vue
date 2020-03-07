@@ -1,6 +1,6 @@
 <template>
   <v-container px-0>
-    <v-snackbar v-model="snackbar" bottom :timeout="timeout" :color="snackColor">
+    <v-snackbar v-model="snackbar" top :timeout="timeout" :color="snackColor">
       {{text}}
       <v-btn dark text @click="snackbar = false">关闭</v-btn>
     </v-snackbar>
@@ -43,19 +43,23 @@
                       class="ma-0 pa-0"
                       persistent-hint
                       :rules="basicRules"
-                      label="考勤表URL"
+                      label="考勤表Hash"
                       hint="上传后自动生成"
                       disabled
-                      v-model="KqItem.kq_URL"
+                      v-model="hash"
                     ></v-text-field>
                   </v-col>
                   <v-col class="ma-0 pa-0" cols="2">
+            
                     <el-upload
                       class="ma-0 pa-0"
-                      action="https://api.imgbb.com/1/upload"
-                      name="image"
-                      :data="imgbb"
-                      :on-success="handleSuccess"
+                      action="https://upload-z2.qiniup.com"
+                      accept="image/jpeg, image/gif, image/png, image/bmp"
+                      name="file"
+                      :show-file-list="snackbar"
+                      :data="QiniuForm"
+                      :before-upload="BeforeUpload"
+                      :on-success="handleSuccessQiniu"
                       :on-error="handlError"
                       :file-list="filelist"
                     >
@@ -89,6 +93,7 @@
 
 <script>
 // import Navi from "@/components/Navi.vue";
+import jutils from "jutils-src";
 import * as API from "@/api/";
 export default {
   name: "jw_upload",
@@ -110,18 +115,46 @@ export default {
       days: ["星期一", "星期二", "星期三", "星期四", "星期五"],
       weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
       basicRules: [v => !!v || "必填项"],
-      imgbb: { key: "1042bb55c081f3d0be9dc672a627e2ba" },
-      myHeaders: {
-        Authorization: "ohAZheHDfjRuChvjwtAANIuganGB2S14",
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "multipart/form-data"
-      }
+      QiniuForm: {},
+      hash:''
     };
   },
-  created() {},
+  created() {
+    this.$store.commit("changeTabs", "");
+    API.getToken(1).then(res => {
+      if (res.code !== 0) {
+        this.snackColor = "error";
+        this.text = "未获取到Token，无法上传";
+        this.snackbar = true;
+        return;
+      } else {
+        this.QiniuForm = {
+          token: res.data
+        };
+      }
+    });
+  },
   methods: {
-    handleSuccess(res) {
-      this.KqItem.kq_URL = res.data.url;
+    BeforeUpload(file) {
+      var currentTime = jutils.formatDate(
+        new Date(new Date().getTime()),
+        "YYYY-MM-DD-HH:ii:ss"
+      );
+      var format = file.name.split(".")[1];
+      var fileinfo =
+        this.$store.state.userInfo.grade + this.$store.state.userInfo.classes;
+      this.QiniuForm.key = fileinfo + "-" + currentTime + "." + format;
+      const isLt10M = file.size < 10 * 1024 * 1024;
+      if (!isLt10M) {
+        this.snackColor = "error";
+        this.text = "图片大小不能超过 10MB!";
+        this.snackbar = true;
+      }
+      return isLt10M;
+    },
+    handleSuccessQiniu(res) {
+      this.hash=res.hash
+      this.KqItem.kq_URL = "http://q6goa5pvw.bkt.clouddn.com/" + res.key;
       this.filelist = [];
     },
     handlError() {
@@ -145,7 +178,6 @@ export default {
       }
       if (this.$refs.form.validate()) {
         API.postKq(this.KqItem).then(res => {
-          console.log(res);
           if (res.code !== 0) {
             this.snackColor = "error";
             this.text = res.msg;
@@ -160,7 +192,7 @@ export default {
         });
       } else {
         this.snackColor = "error";
-        this.text = "表单填写有误，请重试";
+        this.text = "表单填写不完整，请修改后重试";
         this.snackbar = true;
       }
       return;

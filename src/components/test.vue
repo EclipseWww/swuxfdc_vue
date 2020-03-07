@@ -1,7 +1,6 @@
 <template>
   <v-container>
-    
-    <v-app-bar  dense elevation="1" app>
+    <v-app-bar dense elevation="1" app>
       <v-app-bar-nav-icon @click.stop="onClickBtn()">
         <v-btn text icon x-small>
           <v-icon>list</v-icon>
@@ -9,20 +8,13 @@
       </v-app-bar-nav-icon>
       <v-spacer></v-spacer>
       <v-toolbar-title @click="toIndex" class="grey--text">
-         <v-btn @click="toIndex" text  color="primary darken-2" rounded ><span class="footer">学风督察小组</span></v-btn>
+        <v-btn @click="toIndex" text color="primary darken-2" rounded>
+          <span class="footer">学风督察小组</span>
+        </v-btn>
       </v-toolbar-title>
-        <template v-if="this.$store.state.tabs" v-slot:extension>
-        <v-tabs
-          centered
-          slider-color="success"
-        >
-          <v-tab
-            v-for="tab in $store.state.tabs"
-            :key="tab.text"
-            :to="tab.route"
-          >
-           {{ tab.text}}
-          </v-tab>
+      <template v-if="this.$store.state.tabs" v-slot:extension>
+        <v-tabs centered slider-color="success">
+          <v-tab v-for="tab in $store.state.tabs" :key="tab.text" :to="tab.route">{{ tab.text}}</v-tab>
         </v-tabs>
       </template>
     </v-app-bar>
@@ -48,7 +40,7 @@
           </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>
-        <v-list-item-group v-model="link">
+        <v-list-item-group v-model="links">
           <v-list-item v-for="(link, i) in links" :key="i" router :to="link.route">
             <v-list-item-icon>
               <v-icon v-text="link.icon"></v-icon>
@@ -69,10 +61,9 @@
       </v-list>
     </v-navigation-drawer>
 
-
-  <v-scroll-y-reverse-transition leave-absolute>
-  <router-view></router-view> </v-scroll-y-reverse-transition>
-
+    <v-scroll-y-reverse-transition leave-absolute>
+      <router-view></router-view>
+    </v-scroll-y-reverse-transition>
   </v-container>
 </template>
 
@@ -80,44 +71,39 @@
 import * as API from "@/api/";
 export default {
   name: "Navi",
-
   components: {},
   data: () => ({
     screenWidth: document.body.clientWidth,
     drawer: false,
     unHidden: false,
     expandOnHover: false,
-    link: 1,
-    linksJw: [
-      { icon: "dashboard", text: "考勤表上传", route: "/jw/upload" },
-      { icon: "mdi-folder", text: "我的考勤表", route: "/jw/myKq" }
+    // link: 1,
+    linksDis: [
+      { icon: "dashboard", text: "首页", route: "/index" },
+      { icon: "mdi-folder", text: "入班听课", route: "/login" },
+      { icon: "mdi-google-drive", text: "纪检部", route: "/discipline" }
     ],
-    linksXd: [
-      { icon: "dashboard", text: "首页", route: "/admin/index" },
-      { icon: "mdi-folder", text: "考勤表管理", route: "/admin/ListKq" },
-      { icon: "mdi-google-drive", text: "纪检部", route: "/admin/discipline" }
-
+    links: [
+      { icon: "dashboard", text: "考勤表上传", route: "/jw" },
+      { icon: "mdi-folder", text: "我的考勤表", route: "/myKq" }
     ],
-    links:[],
-    userInfo:{},
-
-    //
+    linksJW:[],
+    userInfo: {}
+    
   }),
   created() {
     if (this.screenWidth <= 1270) {
       this.drawer = false;
       this.expandOnHover = false;
-    }  else {
+    } else {
       this.drawer = true;
       this.expandOnHover = false;
     }
     API.getme(1).then(res => {
       this.userInfo = res.data;
-      if(!this.userInfo.dept) this.links=this.linksJw
-      else this.links=this.linksXd
+      // if(!this.userInfo.dept) this.links=this.linksJw
       this.$store.commit("ChangeUserInfo", this.userInfo);
     });
-
   },
   mounted() {
     const that = this;
@@ -155,18 +141,19 @@ export default {
       } else this.drawer = !this.drawer;
     },
     signout() {
-      window.sessionStorage.clear();
-      this.$router.push("/login");
+      API.logout(1).then(res => {
+        if (res.code === 0) this.$router.push("/login");
+      });
     },
-    toIndex(){
-      if(!this.userInfo.dept) this.$router.push("/jw/upload");
-      else this.$router.push("/admin/index");
-    },
+    toIndex() {
+      if(!this.userInfo.dept) this.$router.push("/jw");
+      else this.$router.push("/index");
+    }
   }
 };
 </script>
 <style >
-.footer{
-font-size: 17px
+.footer {
+  font-size: 17px;
 }
 </style>

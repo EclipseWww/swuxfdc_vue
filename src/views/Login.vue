@@ -224,8 +224,8 @@ export default {
             this.snackbar1 = true;
             return;
           }
-          if (res.data.dept) this.$router.push("/index");
-          else this.$router.push("/jw");
+          if (res.data.dept) this.$router.push("admin/index");
+          else this.$router.push("/jw/upload");
         });
       }
     }
