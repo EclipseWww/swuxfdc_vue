@@ -118,9 +118,94 @@
                           </v-form>
                         </v-card>
                       </v-dialog>
-                    </v-flex>
-                    <v-flex xs12>
-                      <v-btn depressed text color="primary">注册</v-btn>
+                      <v-dialog v-model="dialog2" max-width="400px">
+                        <template v-slot:activator="{ on }">
+                          <v-btn depressed text color="primary" v-on="on">注册新用户</v-btn>
+                        </template>
+                        <v-card>
+                          <v-form ref="form">
+                            <v-card-title>
+                              <span class="headline mt-5 ml-5">注册新用户</span>
+                            </v-card-title>
+                            <v-card-text>
+                              <v-container>
+                                <v-form ref="form3" lazy-validation>
+                                  <v-row>
+                                    <v-col cols="12">
+                                      <v-text-field
+                                        :rules="userRules"
+                                        dense
+                                        label="学号"
+                                        name="login"
+                                        prepend-icon="mdi-account-badge"
+                                        type="text"
+                                        v-model="resForm.user_name"
+                                      />
+                                    </v-col>
+                                    <v-col cols="12">
+                                      <v-text-field
+                                        :rules="basicRules"
+                                        dense
+                                        label="真实姓名"
+                                        prepend-icon="person"
+                                        type="text"
+                                        v-model="resForm.name"
+                                      />
+                                    </v-col>
+                                    <v-col cols="12">
+                                      <v-autocomplete
+                                        :rules="basicRules"
+                                        v-model="resForm.grade"
+                                        :items="grade"
+                                        label="年级"
+                                        prepend-icon="mdi-microsoft"
+                                        dense
+                                      ></v-autocomplete>
+                                    </v-col>
+                                    <v-col cols="12">
+                                      <v-autocomplete
+                                        dense
+                                        :rules="basicRules"
+                                        v-model="resForm.classes"
+                                        :items="classes"
+                                        label="专业班级"
+                                        prepend-icon="mdi-microsoft-dynamics"
+                                      ></v-autocomplete>
+                                    </v-col>
+
+                                    <v-col cols="12">
+                                      <v-text-field
+                                        :rules="pwRules"
+                                        dense
+                                        label="密码"
+                                        prepend-icon="mdi-lock-open"
+                                        type="password"
+                                        v-model="resForm.password"
+                                      />
+                                    </v-col>
+                                    <v-col cols="12">
+                                      <v-text-field
+                                        :rules="pwRules"
+                                        dense
+                                        label="确认密码"
+                                        prepend-icon="mdi-lock"
+                                        type="password"
+                                        v-model="resForm.password_confirm"
+                                      />
+                                    </v-col>
+                                  </v-row>
+                                </v-form>
+                              </v-container>
+                            </v-card-text>
+
+                            <v-card-actions>
+                              <v-spacer></v-spacer>
+                              <v-btn color="blue darken-1" text @click="closeRes">取消</v-btn>
+                              <v-btn color="blue darken-1" text @click="saveRes">确定</v-btn>
+                            </v-card-actions>
+                          </v-form>
+                        </v-card>
+                      </v-dialog>
                     </v-flex>
                   </v-layout>
                 </v-flex>
@@ -131,7 +216,7 @@
               <v-layout pt-12 wrap row justify-space-between>
                 <v-flex>
                   <v-snackbar v-model="snackbar1" bottom :timeout="timeout" color="error">
-                    用户名或密码错误
+                    {{text}}
                     <v-btn dark text @click="snackbar1 = false">关闭</v-btn>
                   </v-snackbar>
                 </v-flex>
@@ -157,10 +242,12 @@ export default {
       snackColor: "",
       text: "",
       dialog1: false,
+      dialog2: false,
       snackbar: false,
       snackbar1: false,
       userRules: [v => !!v || "请输入用户名"],
       pwRules: [v => !!v || "请输入密码"],
+      basicRules: [v => !!v || "必填项"],
       screenWidth: document.body.clientWidth,
       zindex: 12,
       outline: false,
@@ -174,7 +261,33 @@ export default {
         password: "",
         password_new: "",
         password_confirm: ""
-      }
+      },
+      resForm: {
+        user_name: "",
+        password: "",
+        password_confirm: "",
+        name: "",
+        grade: "",
+        classes: ""
+      },
+      grade: ["2017", "2018", "2019"],
+      classes: [
+        "软工12",
+        "软工34",
+        "自动化12",
+        "自动化34",
+        "计科12",
+        "计科34",
+        "网工",
+        "管工1",
+        "管工2",
+        "电商",
+        "信管",
+        "计师1",
+        "计师2",
+        "智能科学",
+        "数据科学"
+      ]
     };
 
     //
@@ -183,6 +296,10 @@ export default {
     close() {
       this.$refs.form2.reset();
       this.dialog1 = false;
+    },
+    closeRes() {
+      this.$refs.form3.reset();
+      this.dialog2 = false;
     },
 
     save() {
@@ -215,16 +332,41 @@ export default {
       }
       return;
     },
+    saveRes() {
+      if (this.$refs.form3.validate()) {
+        if (this.resForm.password !== this.resForm.password_confirm) {
+          this.snackColor = "error";
+          this.text = "两次新密码输入不一致";
+          this.snackbar = true;
+          return;
+        }
+
+        API.register(this.resForm).then(res => {
+          if (res.code !== 0) {
+            this.snackColor = "error";
+            this.text = res.msg;
+            this.snackbar = true;
+            return;
+          } else {
+            this.snackColor = "success";
+            this.text = "用户注册成功，请等待激活";
+            this.snackbar = true;
+            this.closeRes();
+          }
+        });
+      }
+      return;
+    },
     login() {
       if (this.$refs.form1.validate()) {
         API.login(this.loginForm).then(res => {
           if (res.code !== 0) {
             this.snackColor = "error";
-            this.text = "用户名或密码错误";
+            this.text = res.msg;
             this.snackbar1 = true;
             return;
           }
-          if (res.data.dept) this.$router.push("admin/index");
+          if (res.data.level>1) this.$router.push("admin/index");
           else this.$router.push("/jw/upload");
         });
       }

@@ -35,12 +35,17 @@
           </v-list-item-avatar>
           <v-list-item-content>
             <v-list-item-title>{{userInfo.name}}</v-list-item-title>
-            <v-list-item-subtitle v-if="userInfo.dept">{{userInfo.dept}}</v-list-item-subtitle>
-            <v-list-item-subtitle v-if="!(userInfo.dept)">纪律委员</v-list-item-subtitle>
+
+            <v-list-item-subtitle v-if="userInfo.level==1">纪律委员</v-list-item-subtitle>
+            <v-list-item-subtitle v-if="userInfo.level==2">{{userInfo.dept}}</v-list-item-subtitle>
+            <v-list-item-subtitle v-if="userInfo.level==3">{{userInfo.dept}}</v-list-item-subtitle>
+            <v-list-item-subtitle v-if="userInfo.level==4">{{userInfo.dept}}</v-list-item-subtitle>
+            <v-list-item-subtitle v-if="userInfo.level==5">组长</v-list-item-subtitle>
+            <v-list-item-subtitle v-if="userInfo.level==6">部长</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>
-        <v-list-item-group v-model="links">
+        <v-list-item-group v-model="link">
           <v-list-item v-for="(link, i) in links" :key="i" router :to="link.route">
             <v-list-item-icon>
               <v-icon v-text="link.icon"></v-icon>
@@ -71,25 +76,29 @@
 import * as API from "@/api/";
 export default {
   name: "Navi",
+
   components: {},
   data: () => ({
     screenWidth: document.body.clientWidth,
     drawer: false,
     unHidden: false,
     expandOnHover: false,
-    // link: 1,
-    linksDis: [
-      { icon: "dashboard", text: "首页", route: "/index" },
-      { icon: "mdi-folder", text: "入班听课", route: "/login" },
-      { icon: "mdi-google-drive", text: "纪检部", route: "/discipline" }
+    link: 1,
+    linksJw: [
+      { icon: "dashboard", text: "考勤表上传", route: "/jw/upload" },
+      { icon: "mdi-folder", text: "我的考勤表", route: "/jw/myKq" }
     ],
-    links: [
-      { icon: "dashboard", text: "考勤表上传", route: "/jw" },
-      { icon: "mdi-folder", text: "我的考勤表", route: "/myKq" }
+    linksXd: [
+      { icon: "dashboard", text: "首页", route: "/admin/index" },
+      { icon: "mdi-folder", text: "课程总表", route: "/admin/courses" },
+      { icon: "mdi-folder", text: "考勤表管理", route: "/admin/kqs" },
+      { icon: "mdi-google-drive", text: "纪检部", route: "/admin/discipline" },
+      { icon: "mdi-folder", text: "用户信息", route: "/admin/users" }
     ],
-    linksJW:[],
+    links: [],
     userInfo: {}
-    
+
+    //
   }),
   created() {
     if (this.screenWidth <= 1270) {
@@ -101,7 +110,8 @@ export default {
     }
     API.getme(1).then(res => {
       this.userInfo = res.data;
-      // if(!this.userInfo.dept) this.links=this.linksJw
+      if (!this.userInfo.dept) this.links = this.linksJw;
+      else this.links = this.linksXd;
       this.$store.commit("ChangeUserInfo", this.userInfo);
     });
   },
@@ -141,13 +151,12 @@ export default {
       } else this.drawer = !this.drawer;
     },
     signout() {
-      API.logout(1).then(res => {
-        if (res.code === 0) this.$router.push("/login");
-      });
+      window.sessionStorage.clear();
+      this.$router.push("/login");
     },
     toIndex() {
-      if(!this.userInfo.dept) this.$router.push("/jw");
-      else this.$router.push("/index");
+      if (!this.userInfo.dept) this.$router.push("/jw/upload");
+      else this.$router.push("/admin/index");
     }
   }
 };

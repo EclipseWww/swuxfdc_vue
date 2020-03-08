@@ -140,21 +140,22 @@ export default {
         new Date(new Date().getTime()),
         "YYYY-MM-DD-HH:ii:ss"
       );
-      var format = file.name.split(".")[1];
+      var format_array = file.name.split(".");
+      var format=format_array[format_array.length-1]
       var fileinfo =
         this.$store.state.userInfo.grade + this.$store.state.userInfo.classes;
       this.QiniuForm.key = fileinfo + "-" + currentTime + "." + format;
       const isLt10M = file.size < 10 * 1024 * 1024;
       if (!isLt10M) {
         this.snackColor = "error";
-        this.text = "图片大小不能超过 10MB!";
+        this.text = "图片大小不能超过 10MB";
         this.snackbar = true;
       }
       return isLt10M;
     },
     handleSuccessQiniu(res) {
       this.hash=res.hash
-      this.KqItem.kq_URL = "http://q6goa5pvw.bkt.clouddn.com/" + res.key;
+      this.KqItem.kq_URL =  res.key;
       this.filelist = [];
     },
     handlError() {

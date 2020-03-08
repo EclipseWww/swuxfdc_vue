@@ -265,9 +265,17 @@ export default {
     },
     initialize() {
       API.getKqs(0, 3000, this.qGrade, this.qClasses, this.qWeek).then(res => {
+        if (res.code !== 0) {
+          this.snackColor = "error";
+          this.text = res.msg;
+          this.snackbar = true;
+          return;
+        }
         this.Kqs = res.data.items;
         if (res.data.items === null) this.Kqs = [];
         for (var item = 0; item < this.Kqs.length; item++) {
+          this.Kqs[item].kq_URL =
+            "http://pic.swuxfdc.cn/" + this.Kqs[item].kq_URL;
           var date = new Date(this.timedat(this.Kqs[item].created_at * 1000));
           if (
             this.Kqs[item].day === this.getWeek(date) &&
@@ -293,7 +301,6 @@ export default {
       }
       if (this.$refs.form.validate()) {
         API.postKq(this.KqItem).then(res => {
-          console.log(res);
           if (res.code !== 0) {
             this.snackColor = "error";
             this.text = res.msg;
@@ -319,7 +326,8 @@ export default {
         new Date(new Date().getTime()),
         "YYYY-MM-DD-HH:ii:ss"
       );
-      var format = file.name.split(".")[1];
+      var format_array = file.name.split(".");
+      var format = format_array[format_array.length - 1];
       var fileinfo =
         this.$store.state.userInfo.grade + this.$store.state.userInfo.classes;
       this.QiniuForm.key = fileinfo + "-" + currentTime + "." + format;
@@ -333,7 +341,7 @@ export default {
     },
     handleSuccessQiniu(res) {
       this.hash = res.hash;
-      this.KqItem.kq_URL = "http://q6goa5pvw.bkt.clouddn.com/" + res.key;
+      this.KqItem.kq_URL = res.key;
       this.filelist = [];
     },
     handlError() {

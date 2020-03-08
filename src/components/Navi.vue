@@ -1,7 +1,6 @@
 <template>
   <v-container>
-    
-    <v-app-bar  dense elevation="1" app>
+    <v-app-bar dense elevation="1" app>
       <v-app-bar-nav-icon @click.stop="onClickBtn()">
         <v-btn text icon x-small>
           <v-icon>list</v-icon>
@@ -9,20 +8,13 @@
       </v-app-bar-nav-icon>
       <v-spacer></v-spacer>
       <v-toolbar-title @click="toIndex" class="grey--text">
-         <v-btn @click="toIndex" text  color="primary darken-2" rounded ><span class="footer">学风督察小组</span></v-btn>
+        <v-btn @click="toIndex" text color="primary darken-2" rounded>
+          <span class="footer">学风督察小组</span>
+        </v-btn>
       </v-toolbar-title>
-        <template v-if="this.$store.state.tabs" v-slot:extension>
-        <v-tabs
-          centered
-          slider-color="success"
-        >
-          <v-tab
-            v-for="tab in $store.state.tabs"
-            :key="tab.text"
-            :to="tab.route"
-          >
-           {{ tab.text}}
-          </v-tab>
+      <template v-if="this.$store.state.tabs" v-slot:extension>
+        <v-tabs centered slider-color="success">
+          <v-tab v-for="tab in $store.state.tabs" :key="tab.text" :to="tab.route">{{ tab.text}}</v-tab>
         </v-tabs>
       </template>
     </v-app-bar>
@@ -43,8 +35,13 @@
           </v-list-item-avatar>
           <v-list-item-content>
             <v-list-item-title>{{userInfo.name}}</v-list-item-title>
-            <v-list-item-subtitle v-if="userInfo.dept">{{userInfo.dept}}</v-list-item-subtitle>
-            <v-list-item-subtitle v-if="!(userInfo.dept)">纪律委员</v-list-item-subtitle>
+
+            <v-list-item-subtitle v-if="userInfo.level==1">纪律委员</v-list-item-subtitle>
+            <v-list-item-subtitle v-if="userInfo.level==2">{{userInfo.dept}}</v-list-item-subtitle>
+            <v-list-item-subtitle v-if="userInfo.level==3">{{userInfo.dept}}</v-list-item-subtitle>
+            <v-list-item-subtitle v-if="userInfo.level==4">{{userInfo.dept}}</v-list-item-subtitle>
+            <v-list-item-subtitle v-if="userInfo.level==5">组长</v-list-item-subtitle>
+            <v-list-item-subtitle v-if="userInfo.level==6">部长</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>
@@ -69,10 +66,9 @@
       </v-list>
     </v-navigation-drawer>
 
-
-  <v-scroll-y-reverse-transition leave-absolute>
-  <router-view></router-view> </v-scroll-y-reverse-transition>
-
+    <v-scroll-y-reverse-transition leave-absolute>
+      <router-view></router-view>
+    </v-scroll-y-reverse-transition>
   </v-container>
 </template>
 
@@ -94,12 +90,14 @@ export default {
     ],
     linksXd: [
       { icon: "dashboard", text: "首页", route: "/admin/index" },
-      { icon: "mdi-folder", text: "考勤表管理", route: "/admin/ListKq" },
-      { icon: "mdi-google-drive", text: "纪检部", route: "/admin/discipline" }
-
+      { icon: "mdi-code-braces-box", text: "课程总表", route: "/admin/courses" },
+      { icon: "mdi-file-document", text: "听课表", route: "/admin/tks" },
+      { icon: "mdi-folder", text: "考勤表", route: "/admin/kqs" },
+      { icon: "mdi-google-drive", text: "纪检部", route: "/admin/discipline" },
+      { icon: "mdi-account-badge", text: "用户信息", route: "/admin/users" }
     ],
-    links:[],
-    userInfo:{},
+    links: [],
+    userInfo: {}
 
     //
   }),
@@ -107,17 +105,16 @@ export default {
     if (this.screenWidth <= 1270) {
       this.drawer = false;
       this.expandOnHover = false;
-    }  else {
+    } else {
       this.drawer = true;
       this.expandOnHover = false;
     }
     API.getme(1).then(res => {
       this.userInfo = res.data;
-      if(!this.userInfo.dept) this.links=this.linksJw
-      else this.links=this.linksXd
+      if (this.userInfo.level==1) this.links = this.linksJw;
+      else this.links = this.linksXd;
       this.$store.commit("ChangeUserInfo", this.userInfo);
     });
-
   },
   mounted() {
     const that = this;
@@ -158,15 +155,15 @@ export default {
       window.sessionStorage.clear();
       this.$router.push("/login");
     },
-    toIndex(){
-      if(!this.userInfo.dept) this.$router.push("/jw/upload");
+    toIndex() {
+      if (this.userInfo.level==1) this.$router.push("/jw/upload");
       else this.$router.push("/admin/index");
-    },
+    }
   }
 };
 </script>
 <style >
-.footer{
-font-size: 17px
+.footer {
+  font-size: 17px;
 }
 </style>

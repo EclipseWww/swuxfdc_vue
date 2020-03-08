@@ -23,30 +23,36 @@ const routes = [
   // redirect:'/index',
   children:[
     {
-      path:'/jw/upload', component: () => import(/* webpackChunkName: "Upload" */ '../views/jw/Upload.vue')
+      path:'/jw/upload', component: () => import(/* webpackChunkName: "jw" */ '../views/jw/Upload.vue')
     },
     {
-      path:'/jw/mykq', component: () => import(/* webpackChunkName: "MyKq" */ '../views/jw/MyKq.vue')
-    },
-
-
-
-    {
-      path:'/admin/index', component: () => import(/* webpackChunkName: "Index" */ '../views/admin/Index.vue')
-    },
-    {
-      path:'/admin/listkq', component: () => import(/* webpackChunkName: "ListKq" */ '../views/admin/ListKq.vue')
+      path:'/jw/mykq', component: () => import(/* webpackChunkName: "jw" */ '../views/jw/MyKq.vue')
     },
 
 
+
     {
-      path:'/admin/discipline/absent', component:() => import(/* webpackChunkName: "Absent" */ '../views/admin/discipline/Absent.vue')
+      path:'/admin/index', component: () => import(/* webpackChunkName: "xdPublic" */ '../views/admin/Index.vue')
     },
     {
-      path:'/admin/discipline/audit', component:() => import(/* webpackChunkName: "Audit" */ '../views/admin/discipline/Audit.vue')
+      path:'/admin/kqs', component: () => import(/* webpackChunkName: "xdPublic" */ '../views/admin/ListKq.vue')
     },
     {
-      path:'/admin/discipline/score', component:() => import(/* webpackChunkName: "Score" */ '../views/admin/discipline/Score.vue')
+      path:'/admin/users', component: () => import(/* webpackChunkName: "xdPublic" */ '../views/admin/ListUser.vue')
+    },
+    {
+      path:'/admin/courses', component: () => import(/* webpackChunkName: "xdPublic" */ '../views/admin/ListCourse.vue')
+    },
+
+
+    {
+      path:'/admin/discipline/absent', component:() => import(/* webpackChunkName: "discipline" */ '../views/admin/discipline/Absent.vue')
+    },
+    {
+      path:'/admin/discipline/audit', component:() => import(/* webpackChunkName: "discipline" */ '../views/admin/discipline/Audit.vue')
+    },
+    {
+      path:'/admin/discipline/score', component:() => import(/* webpackChunkName: "discipline" */ '../views/admin/discipline/Score.vue')
     },
   ]}
 ]

@@ -151,6 +151,7 @@ export default {
       API.getKqs(0, 3000).then(res => {
         this.Kqs = res.data.items;
         for (var item = 0; item < this.Kqs.length; item++) {
+          this.Kqs[item].kq_URL='http://pic.swuxfdc.cn/'+this.Kqs[item].kq_URL
           var date = new Date(this.timedat(this.Kqs[item].created_at * 1000));
           if (
             this.Kqs[item].day === this.getWeek(date) &&
